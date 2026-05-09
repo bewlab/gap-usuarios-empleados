@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartera Odoo — Detector de empleados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F5F4F0;
+      --white: #FFFFFF;
+      --surface2: #F9F8F6;
+      --border: #E8E5DF;
+      --border2: #D8D4CC;
+      --text: #1A1916;
+      --text2: #6B6860;
+      --text3: #A8A49C;
+      --accent: #2563EB;
+      --accent-light: #EEF3FD;
+      --accent-hover: #1D4ED8;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --amber: #D97706;
+      --amber-light: #FEF3C7;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --font: 'Outfit', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    header { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+    .logo-text { font-size: 16px; font-weight: 600; }
+    .logo-text span { color: var(--text3); font-weight: 400; }
+    .header-badge { background: var(--accent-light); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); }
+    .card-body { padding: 20px; }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 20px; }
+    .divider { height: 1px; background: var(--border); margin: 0 -20px 20px; }
+
+    .field { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+
+    textarea { width: 100%; height: 200px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-family: var(--mono); font-size: 12px; line-height: 1.8; outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; }
+    textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: var(--white); }
+    .field-hint { margin-top: 6px; font-size: 11.5px; color: var(--text3); line-height: 1.6; }
+    .field-hint code { font-family: var(--mono); background: var(--surface2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+
+    .btn-primary { width: 100%; padding: 13px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { background: var(--border2); color: var(--text3); box-shadow: none; cursor: not-allowed; }
+
+    .btn-secondary { padding: 9px 16px; background: var(--white); color: var(--text2); border: 1.5px solid var(--border2); border-radius: 6px; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+    .progress-section { margin-top: 16px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .progress-label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+    .progress-pct { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+    .progress-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #60A5FA); border-radius: 3px; transition: width 0.4s ease; }
+
+    .log-box { max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+    .log-item { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--text3); }
+    .log-item.active { color: var(--accent); }
+    .log-item.ok { color: var(--green); }
+    .log-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .log-item.active .log-dot { animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .alert-error { display: none; padding: 10px 14px; background: var(--red-light); border: 1px solid #FCA5A5; color: var(--red); border-radius: 6px; font-size: 12.5px; margin-bottom: 14px; }
+
+    .empty-state { background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); padding: 64px 32px; text-align: center; }
+    .empty-icon { width: 72px; height: 72px; background: var(--accent-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px; }
+    .empty-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .empty-desc { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 260px; margin: 0 auto; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow-sm); }
+    .stat-icon { font-size: 20px; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; color: var(--text); }
+    .stat-value.blue { color: var(--accent); }
+    .stat-value.green { color: var(--green); }
+    .stat-label { font-size: 11.5px; color: var(--text3); }
+
+    .results-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; }
+    .results-toolbar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+    .results-title { font-size: 14px; font-weight: 600; }
+    .results-count { font-size: 12px; color: var(--text3); background: var(--border); padding: 2px 9px; border-radius: 20px; margin-left: 10px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--surface2); border-bottom: 1px solid var(--border); }
+    th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+    td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--surface2); }
+
+    .td-empresa { font-weight: 500; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .td-cif { font-family: var(--mono); font-size: 11.5px; color: var(--text3); }
+    .td-num { text-align: right; font-family: var(--mono); font-size: 13px; color: var(--text2); }
+
+    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .chip-green { background: var(--green-light); color: var(--green); }
+    .chip-grey  { background: var(--border); color: var(--text3); }
+    .chip-amber { background: var(--amber-light); color: var(--amber); }
+    .chip-blue  { background: var(--accent-light); color: var(--accent); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      main { padding: 20px 16px 60px; }
+      header { padding: 0 16px; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  const WEBHOOK_URL = 'https://vmi2893492.contaboserver.net/webhook/odoo-empleados';
+</script>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div class="logo-text">Odoo Cartera <span>/ empleados</span></div>
+  </div>
+  <div class="header-badge">Uso interno</div>
+</header>
+
+<main>
+  <div class="layout">
+
+    <div style="position:sticky;top:76px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Analizar clientes</div>
+          <div class="card-desc">Pega tu lista y detectamos automáticamente cuántos empleados tiene cada empresa.</div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label class="field-label">Lista de clientes</label>
+            <textarea id="csvInput" placeholder="Artisan Flowers SL; B12345678; 3
+Mercadona SA; B46078853; 45
+Ferrovial SA, A28541639, 8
+Leroy Merlin España"></textarea>
+            <div class="field-hint">
+              Una empresa por línea.<br/>
+              Formato: <code>Empresa, CIF, Usuarios</code><br/>
+              CIF y usuarios son opcionales.
+            </div>
+          </div>
+
+          <div class="alert-error" id="errorBox"></div>
+
+          <button class="btn-primary" id="btnRun" onclick="startAnalysis()">
+            <span id="btnIcon">▶</span>
+            <span id="btnText">Analizar cartera</span>
+          </button>
+
+          <div class="progress-section" id="progressSection" style="display:none;">
+            <div class="progress-top">
+              <div class="progress-label" id="progressLabel">Iniciando...</div>
+              <div class="progress-pct" id="progressPct">0%</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="log-box" id="logBox"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">Sin datos todavía</div>
+        <div class="empty-desc">Pega tu lista de clientes y pulsa <strong>Analizar cartera</strong> para empezar.</div>
+      </div>
+
+      <div id="resultsWrap" style="display:none;">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="results-card">
+          <div class="results-toolbar">
+            <div style="display:flex;align-items:center;">
+              <div class="results-title">Resultados</div>
+              <div class="results-count" id="resultsCount"></div>
+            </div>
+            <button class="btn-secondary" onclick="exportCSV()">↓ Exportar CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empresa</th>
+                  <th>CIF</th>
+                  <th style="text-align:right">Usuarios</th>
+                  <th style="text-align:right">Empleados</th>
+                  <th>Gap</th>
+                  <th>Fuente</th>
+                </tr>
+              </thead>
+              <tbody id="resultsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let results = [];
+
+  function parseCSV(raw) {
+    return raw.split('\n').map(l=>l.trim()).filter(l=>l.length>0).map(line=>{
+      const sep = line.includes(';')?';':',';
+      const parts = line.split(sep).map(p=>p.trim().replace(/\.$/,''));
+      const empresa = parts[0]||'';
+      const cif = parts[1]||'';
+      const u = parseInt(parts[2]);
+      const usuarios = isNaN(u)||u<1?1:u;
+      return empresa?{empresa,cif,usuarios}:null;
+    }).filter(Boolean);
+  }
+
+  function showError(msg) {
+    const b = document.getElementById('errorBox');
+    b.textContent = '⚠️ ' + msg;
+    b.style.display = 'block';
+  }
+  function hideError() { document.getElementById('errorBox').style.display = 'none'; }
+
+  function addLog(msg, type) {
+    const box = document.getElementById('logBox');
+    const prev = box.querySelector('.active');
+    if (prev) { prev.classList.remove('active'); prev.classList.add(prev.dataset.t||'ok'); }
+    const el = document.createElement('div');
+    el.className = 'log-item active';
+    el.dataset.t = type;
+    el.innerHTML = `<div class="log-dot"></div><span>${msg}</span>`;
+    box.prepend(el);
+  }
+
+  async function searchEmployees(empresa, cif) {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({empresa, cif})
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    return await res.json();
+  }
+
+  async function startAnalysis() {
+    hideError();
+    const raw = document.getElementById('csvInput').value.trim();
+    if (!raw) { showError('Pega al menos una empresa para analizar.'); return; }
+    const clients = parseCSV(raw);
+    if (!clients.length) { showError('No se encontraron empresas válidas.'); return; }
+
+    results = [];
+    const btn = document.getElementById('btnRun');
+    btn.disabled = true;
+    document.getElementById('btnIcon').textContent = '⏳';
+    document.getElementById('btnText').textContent = 'Analizando...';
+    document.getElementById('progressSection').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsWrap').style.display = 'none';
+    document.getElementById('logBox').innerHTML = '';
+
+    const total = clients.length;
+    for (let i = 0; i < total; i++) {
+      const c = clients[i];
+      const pct = Math.round((i/total)*100);
+      document.getElementById('progressFill').style.width = pct+'%';
+      document.getElementById('progressPct').textContent = pct+'%';
+      document.getElementById('progressLabel').textContent = c.empresa;
+      addLog(`Buscando ${c.empresa}…`,'ok');
+      try {
+        const {empleados, fuente} = await searchEmployees(c.empresa, c.cif);
+        const gap = empleados!=null ? empleados-c.usuarios : null;
+        results.push({...c, empleados, fuente, gap});
+        addLog(empleados!=null?`✓ ${c.empresa} — ${empleados} empleados`:`— ${c.empresa} — sin datos`, empleados!=null?'ok':'grey');
+      } catch(e) {
+        results.push({...c, empleados:null, fuente:null, gap:null});
+        addLog(`✗ ${c.empresa} — error de conexión`,'grey');
+      }
+    }
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressPct').textContent = '100%';
+    document.getElementById('progressLabel').textContent = `✓ Completado — ${total} empresas`;
+    document.getElementById('btnIcon').textContent = '✓';
+    document.getElementById('btnText').textContent = 'Analizar de nuevo';
+    btn.disabled = false;
+    renderResults();
+  }
+
+  function renderResults() {
+    const found   = results.filter(r=>r.empleados!=null).length;
+    const withGap = results.filter(r=>r.gap>0).length;
+    const totGap  = results.filter(r=>r.gap>0).reduce((s,r)=>s+r.gap,0);
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-value">${results.length}</div><div class="stat-label">Analizadas</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value blue">${found}</div><div class="stat-label">Con datos</div></div>
+      <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-value green">${withGap}</div><div class="stat-label">Con gap positivo</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value blue">${totGap}</div><div class="stat-label">Licencias potenciales</div></div>
+    `;
+
+    document.getElementById('resultsCount').textContent = `${results.length} empresas`;
+
+    const sorted = [...results].sort((a,b)=>(b.gap??-9999)-(a.gap??-9999));
+    document.getElementById('resultsBody').innerHTML = sorted.map(r=>{
+      const empCell = r.empleados!=null
+        ? `<td class="td-num">${r.empleados}</td>`
+        : `<td><span class="chip chip-amber">Sin datos</span></td>`;
+
+      let gapCell;
+      if (r.gap==null)  gapCell = `<td><span class="chip chip-grey">—</span></td>`;
+      else if (r.gap>0) gapCell = `<td><span class="chip chip-green">↑ +${r.gap}</span></td>`;
+      else if (r.gap<0) gapCell = `<td><span class="chip chip-grey">${r.gap}</span></td>`;
+      else              gapCell = `<td><span class="chip chip-grey">0</span></td>`;
+
+      const fuenteCell = r.fuente
+        ? `<td><span class="chip chip-blue">${r.fuente}</span></td>`
+        : `<td style="color:var(--text3);font-size:12px">—</td>`;
+
+      return `<tr>
+        <td class="td-empresa" title="${r.empresa}">${r.empresa}</td>
+        <td class="td-cif">${r.cif||'—'}</td>
+        <td class="td-num">${r.usuarios}</td>
+        ${empCell}${gapCell}${fuenteCell}
+      </tr>`;
+    }).join('');
+
+    document.getElementById('resultsWrap').style.display = 'block';
+  }
+
+  function exportCSV() {
+    const headers = ['Empresa','CIF','Usuarios contratados','Empleados encontrados','Gap','Fuente'];
+    const rows = results.map(r=>[
+      `"${r.empresa}"`, r.cif||'', r.usuarios,
+      r.empleados??'', r.gap??'', `"${r.fuente||''}"`
+    ].join(','));
+    const csv = [headers.join(','),...rows].join('\n');
+    const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `cartera_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+</script>
+</body>
+</html>
